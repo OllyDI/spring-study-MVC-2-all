@@ -1,0 +1,98 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <link href="../css/bootstrap.min.css"
+          rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <style>
+        .container {
+            max-width: 560px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="py-5 text-center">
+        <h2>상품 등록 폼</h2>
+    </div>
+
+    <form action="item.html" method="post" th:action th:object="${item}">
+        <div>
+            <label for="itemName">상품명</label>
+            <!-- th:field="*{itemName}" 를 쓰게되면 input 태그에 id, name을 지울 수 있음 -->
+            <!-- th:field 는 id, name, value 세가지를 생성해줌 -->
+            <input class="form-control" id="itemName" placeholder="이름을 입력하세요" th:field="*{itemName}" type="text">
+        </div>
+        <div>
+            <label for="price">가격</label>
+            <input class="form-control" id="price" placeholder="가격을 입력하세요" th:field="*{price}" type="text">
+        </div>
+        <div>
+            <label for="quantity">수량</label>
+            <input class="form-control" id="quantity" placeholder="수량을 입력하세요" th:field="*{quantity}" type="text">
+        </div>
+
+        <hr class="my-4">
+
+        <!-- single checkbox -->
+        <div>판매 여부</div>
+        <div>
+            <div class="form-check">
+                <!-- checkbox hidden을 넣지 않으면 체크박스를 체크 안하고 넘길 시 open=null로 전송됨 -> 타임리프 쓰면 해결 -->
+<!--                <input class="form-check-input" id="open" name="open" type="checkbox">-->
+<!--                <input name="_open" type="hidden" value="on">-->
+                <input class="form-check-input" id="open" th:field="*{open}" type="checkbox">
+                <label class="form-check-label" for="open">판매 오픈</label>
+            </div>
+        </div>
+
+        <!-- multi checkbox -->
+        <div>
+            <div>등록 지역</div>
+            <div th:each="region : ${regions}" class="form-check form-check-inline">
+                <!-- #ids를 하면 th:field로 생성되는 id를 자동으로 넣어줌 -->
+                <input type="checkbox" th:field="${item.regions}" th:value="${region.key}" class="form-check-input">
+                <label th:for="${#ids.prev('regions')}" th:text="${region.value}" class="form-check-label">서울</label>
+            </div>
+        </div>
+
+        <!-- radio button -->
+        <div>
+            <div>상품 종류</div>
+            <!-- enum을 직접 넣는 것도 가능 패키지 이동시 문제 발생 -> 좋은 방법은 아님 -->
+            <!-- <div th:each="type : ${T(hello.itemservice.domain.item.ItemType).values()}" class="form-check form-check-inline"> -->
+            <div th:each="type : ${itemTypes}" class="form-check form-check-inline">
+                <input type="radio" th:field="${item.itemType}" th:value="${type.name()}" class="form-check-input">
+                <label th:for="${#ids.prev('itemType')}" th:text="${type.description}" class="form-check-label">BOOK</label>
+            </div>
+        </div>
+
+        <!-- SELECT -->
+        <div>
+            <div>배송 방식</div>
+            <select th:field="*{deliveryCode}" class="form-select">
+                <option value="">==배송 방식 선택==</option>
+                <option th:each="deliveryCode : ${deliveryCodes}" th:value="${deliveryCode.code}" th:text="${deliveryCode.displayName}">FAST</option>
+            </select>
+        </div>
+        <hr class="my-4">
+
+        <div class="row">
+            <div class="col">
+                <button class="w-100 btn btn-primary btn-lg" type="submit">상품 등록</button>
+            </div>
+            <div class="col">
+                <button class="w-100 btn btn-secondary btn-lg"
+                        onclick="location.href='items.html'"
+                        th:onclick="|location.href='@{/form/items}'|"
+                        type="button">취소
+                </button>
+            </div>
+        </div>
+    </form>
+
+</div> <!-- /container -->
+</body>
+</html>

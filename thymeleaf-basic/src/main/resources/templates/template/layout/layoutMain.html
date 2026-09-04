@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- base로 헤드가 전부 바뀐느데 ~~title ~~link로 인해 타이틀과 링크는 현재 값을 사용함 -> 공통 부분은 그대로 사용함 -->
+<head th:replace="template/layout/base :: common_header(~{::title},~{::link})">
+    <title>메인 타이틀</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/themes/smoothness/jquery-ui.css}">
+</head>
+<body>
+메인 컨텐츠
+</body>
+</html>
