@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/exception" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/form" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/login" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/message" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/thymeleaf-basic" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/typeconverter" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/upload" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/validation" vcs="Git" />
+  </component>
+</project>
