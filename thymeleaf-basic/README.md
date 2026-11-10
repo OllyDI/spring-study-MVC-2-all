@@ -172,3 +172,4 @@ line 2 [layoutExtendMain.html](src/main/resources/templates/template/layoutExten
 - line 2 [layoutFile.html](src/main/resources/templates/template/layoutExtend/layoutFile.html) html 태그에 `th:fragment`를 넣어 전체를 레이아웃으로 교체 가능
 - line 4 [layoutFile.html](src/main/resources/templates/template/layoutExtend/layoutFile.html) 전달한 title로 변경
 - line 8 ~ 10 [layoutFile.html](src/main/resources/templates/template/layoutExtend/layoutFile.html) 전달한 section으로 변경
+
