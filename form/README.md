@@ -66,3 +66,50 @@ line 43 ~ 49 [item.html](src/main/resources/templates/form/item.html) 상품 상
 
 line 41 ~ 47 [editForm.html](src/main/resources/templates/form/editForm.html) 상품 수정 페이지 체크박스 추가
 line 30 ~ 38 [ItemRepository](src/main/java/hello/itemservice/domain/item/ItemRepository.java) 업데이트 수정
+
+<br>
+
+>26.11.12
+
+### 체크박스 - 멀티
+
+line 25 ~ 46 [FormItemController](src/main/java/hello/itemservice/web/form/FormItemController.java) 중복 코드 해결 -> `@ModelAttribute("regions")` 모든 메핑에 자동 호출, 모델에 담김
+
+line 53 ~ 58 [addForm.html](src/main/resources/templates/form/addForm.html) 등록지역 체크박스 추가
+- line 54 스프링이 자동으로 담아준 regions로 each 반복
+- line 56 `th:field="${item.regions}"`는 form `item`의 regions임. -> `th:field="*{regions}"`으로 작성 가능
+- line 57 `th:for="${#ids.prev('regions')}"`에서 `#ids`를 사용하면 line 56 th:field로 생성된 동적 id 사용
+
+line 53 ~ 57 [item.html](src/main/resources/templates/form/item.html) 등록지역 체크박스 추가
+- item.html은 form `th:object`가 없기 때문에 `th:field="*{regions}"` 사용 불가
+
+line 51 ~ 55 [editForm.html](src/main/resources/templates/form/editForm.html) 등록지역 체크박스 추가
+
+<br>
+
+### 라디오 버튼
+
+line 34 ~ 37 [FormItemController](src/main/java/hello/itemservice/web/form/FormItemController.java) `ItemType.values()`를 사용하면 Enum 모든 정보를 배열로 반환
+
+line 63 ~ 69 [addForm.html](src/main/resources/templates/form/addForm.html) 라디오 버튼 추가
+- line 66 `th:each="type : ${itemTypes}"` 모델에 전달된 enum을 each 반복 사용
+- line 67 `th:field="${item.itemType}"`는 form th:object의 item임. `type.name()` enum의 이름을 string으로 반환
+
+line 62 ~ 66 [item.html](src/main/resources/templates/form/item.html) 라디오 버튼 추가
+
+line 60 ~ 64 [editForm.html](src/main/resources/templates/form/editForm.html) 라디오 버튼 추가
+
+타임리프 ENUM 직접 접근 가능
+`<div th:each="type: ${T(hello.itemservice.domain.item.ItemType).values()}">`
+
+<br>
+
+### 셀렉트 박스
+
+line 39 ~ 45 [FormItemController](src/main/java/hello/itemservice/web/form/FormItemController.java) 객체를 사용해서 셀렉트 박스 추가
+
+line 74 ~ 78 [addForm.html](src/main/resources/templates/form/addForm.html) 셀렉트 박스 추가
+
+line 71 ~ 75 [item.html](src/main/resources/templates/form/item.html) 셀렉트 박스 추가
+
+line 69 ~ 73 [editForm.html](src/main/resources/templates/form/editForm.html) 셀렉트 박스 추가
