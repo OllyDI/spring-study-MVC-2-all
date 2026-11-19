@@ -61,6 +61,8 @@ line 60 ~ 94 addItemV1
 - line 33 **필드 오류 처리**: `th:errorclass="field-error"`: `th:field`로 지정한 필드에 에러가 있으면 클래스 추가
 - line 34 v1에서처럼 복잡하게 할 필요 없이 `th:errors="*{...}"`이면 끝남 -> `th:if` 편의 버전
 
+<br>
+
 ### 검증 V2 - BindingResult 2
 
 `@ModelAttribute`데이터에 바인딩 오류가 발생해도 `BindingResult` 호출 -> 가격, 수량에 Integer가 아닌 문자 입력시
