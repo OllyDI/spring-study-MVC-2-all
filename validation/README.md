@@ -87,7 +87,7 @@ V2 문제점
 목표: 입력 오류가 발생해도 사용자가 입력한 값 보존
 
 line 97 ~ 140 addItemV2
-- line 111 `fieldError` 파라미터중 `rejectedValue`에 사용자 입력 값을 넣으면 보존 가능
+- line 111 `fieldError` 파라미터 중 `rejectedValue`에 사용자 입력 값을 넣으면 보존 가능
   * `objectName`: 객체 이름
   * `field`: 오류 필드
   * `rejectedValue`: 사용자 입력 값
@@ -104,3 +104,69 @@ line 97 ~ 140 addItemV2
 
 addItemV2 문제점
 - 타입 오류 메시지가 스프링에서 기본적으로 제공하는 메시지임. 수정 필요
+
+<br>
+
+>26.11.20
+
+### 오류 코드와 메시지 처리1
+
+[application.properties](src/main/resources/application.properties) `errors.properties`를 사용하기 위해 `basename`에 errors 추가
+
+[errors.properties](src/main/resources/errors.properties) 에러 메시지 추가
+
+line 144 ~ 180 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) addItemV3 추가 - defaultMessage 제거, codes, arguments 추가
+- line 151 ~ 158 필드 에러 메시지(codes) `new String[]{"..."}` 추가
+- line 165 오브젝트 에러 메시지(codes, arguments) 추가
+
+<br>
+
+### 오류코드와 메시지 처리2
+
+`FieldError`와 `ObjectError` 너무 번거로움 -> `BindingResult`가 제공하는 `rejectVale()` or `reject()` 사용
+
+`BindingResult`는 검증 대상 바로 뒤에 오기 때문에 이미 검증해야 할 대상을 알고 있음 -> `objectName` 생략 가능
+
+
+line 184 ~ 230 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) addItemV4 추가
+- line 200 `rejectValue(field, errorCode)`사용 `objectName`생략 `codes`도 코드 단축 가능
+- line 204 ~ 207 `rejectValue(field, errorCode, arguments, defaultMessage)` 사용
+- line 214 글로벌 오류는 `reject(errorCode, arguments, defaultMessage)` 사용
+
+앞서 본 코드에서 `errorCode`에 V3 버전처럼 `required.item.itemName`하지 않고 `required`만 사용할 수 있는 이유
+- `errorCode`의 오류 코드는 메시지에 등록된 코드 호출이 아님 `messageResolver`를 위한 코드 -> 뒤에서 설명
+
+<br>
+
+### 오류코드와 메시지 처리3 - *가장 중요*
+
+위에서 설명한 `errorCode`의 처리 방식에 대해 설명
+- 오류 메시지를 단순하게 만들면 범용성이 좋아지지만 메시지를 세밀하게 작성 불가.
+- 가장 좋은 방법은 범용성으로 사용 -> 세밀한 메시지 필요한 경우 세밀한 메시지가 적용되도록
+- ex: `required` 오류 코드 사용시 범용성 좋은 메시지보다 더 세밀한 메시지가 있으면 높은 우선순위로 사용
+- 스프링은 이걸 `messageCodesResolver`로 이 기능을 지원함
+
+<br>
+
+### 오류코드와 메시지 처리4
+
+[MessageCodesResolverTest](src/test/java/hello/itemservice/validation/MessageCodesResolverTest.java) `messageCodesResolver` 테스트 코드 생성
+- line 13 `MessageCodesResolver` 인터페이스 생성
+- line 16 ~ 19 `ObjectError` 테스트 코드
+  - line 18 `messageCodes`를 출력해보면 `required.item`, `required` 두가지가 나옴
+- line 22 ~ 30 `FieldError` 테스트 코드
+  - 에러 코드를 기준으로 파라미터를 넣은 4가지의 조합으로 리스트를 만듬 위로 갈수록 디테일해짐
+  - `required.item.itemName`: 에러코드 + 객체명 + 필드명
+  - `required.itemName`: 에러코드 + 필드명
+  - `required.java.lang.String`: 에러코드 + 타입
+  - `required`: 에러코드
+
+`MessageCodesResolver` 메시지 생성 규칙
+- 객체 오류
+  1. code + objectName
+  2. code
+- 필드 오류
+  1. code + objectName + field
+  2. code + field
+  3. code + fieldType
+  4. code
