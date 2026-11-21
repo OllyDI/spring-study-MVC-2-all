@@ -170,3 +170,26 @@ line 184 ~ 230 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/
   2. code + field
   3. code + fieldType
   4. code
+
+<br>
+
+> 26.11.21
+
+### 오류코드와 메시지 처리5
+
+모든 오류 코드를 구체적으로 정의하면 관리가 힘듬
+
+크게 중요하지 않은 메시지는 범용성, 중요한 메시지는 구체적으로 사용하는 방식이 효과적
+
+line 6 ~ 35 [errors.properties](src/main/resources/errors.properties) 단계별 에러 메시지 추가
+
+line 192 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) 공백처리와 같은 if문을 생략하고 싶으면 line 191 처럼 작성
+
+<br>
+
+### 오류코드와 메시지 처리6
+
+검증 오류는 두가지 - 개발자가 직접 만든코드(rejectValue), 스프링이 직접 검증 오류에 추가(typeMismatch)
+
+line 39 ~ 45 [errors.properties](src/main/resources/errors.properties) typeMismatch에 대한 메시지 추가
+
