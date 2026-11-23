@@ -193,3 +193,39 @@ line 192 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/valida
 
 line 39 ~ 45 [errors.properties](src/main/resources/errors.properties) typeMismatch에 대한 메시지 추가
 
+<br>
+
+> 26.11.23
+
+### Validator 분리1
+
+[ItemValidator](src/main/java/hello/itemservice/web/validation/ItemValidator.java) 복잡한 검증 로직 분리 - 스프링이 제공하는 Validator 인터페이스 사용
+- line 13 ~ 15 검증기가 Item클래스를 지원하는지 체크
+- line 18 `Object`: 검증 대상 객체(Item)  `Errors`: `BindingResult`의 부모 클래스
+- 기존 코드에서 `bindingResult`만 `errors`로 바꾸면 됨 
+
+line 233 ~ 248 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) addItemV5 추가
+- line 30 아까 만든 `Validator` 빈 등록
+- line 235 `itemValidator.validate(target, bindingResult)` 검증 등록
+
+<br>
+
+### Validator 분리2
+
+`validator` 인터페이스를 사용하는 이유 - 스프링의 추가적인 도움을 받을 수 있음
+
+line 32 ~ 35 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) `@InitBinder`, `WebDataBinder` 사용
+- `@InitBinder` 해당 컨트롤러에만 영향, 클로벌 설정을 별도로 해야함
+- `WebDataBinder`에 검증기를 등록
+- 해당 컨트롤러가 호출될 때 해당 메서드가 먼저 호출됨
+- 이후 어떤 요청 매핑을 호출하더라도 해당 메서드 기능(검증) 사용 가능 - `@Validated`
+
+line 251 ~ 264 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV2.java) addItemV6 추가
+- line 251 `@Validated` 어노테이션 추가 - 해당 타켓(Item)을 자동으로 검증 적용
+- `@Validated`를 추가함으로써 V5처럼 클래스 호출 필요 없음
+
+`WebDataBinder`에 여러 검증기가 등록되어 있을 때 구분할 수 있어야 함
+- [ItemValidator](src/main/java/hello/itemservice/web/validation/ItemValidator.java)의 supports 메서드로 구분
+
+검증기 글로벌 설정은 [ItemServiceApplication](src/main/java/hello/itemservice/ItemServiceApplication.java) 에 `WebMvcConfigurer` 인터페이스 상속받고 사용
+
