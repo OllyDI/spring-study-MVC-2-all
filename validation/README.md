@@ -229,3 +229,37 @@ line 251 ~ 264 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/
 
 검증기 글로벌 설정은 [ItemServiceApplication](src/main/java/hello/itemservice/ItemServiceApplication.java) 에 `WebMvcConfigurer` 인터페이스 상속받고 사용
 
+<br>
+
+>26.11.24
+
+## 검증2 - Bean Validation
+
+앞서 한 것처럼 검증을 매번 코드 작성은 상당히 번거로움.
+
+이런 검증 로직을 모든 프로젝트에 적용할 수 있고 공통화, 표준화 -> `Bean Validation`
+
+<br>
+
+### Bean Validation - 시작
+
+먼저 스프링과 통합하지 않고 순수 `Bean Validation`사용, 테스트 코드 추가
+
+[Item](src/main/java/hello/itemservice/domain/item/Item.java) 객체에 어노테이션 추가
+- itemName - `@NotBlank`
+- price - `@NotNull`, `@Range(min = 1000, max = 1000000)`
+- quantity - `@Max(value = 9999)`
+
+[BeanValidationTest](src/test/java/hello/itemservice/validation/BeanValidationTest.java) `Bean Validation` 테스트 코드 참고
+
+이후 스프링 적용을 위한 V3 버전 추가 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java), [HTML V3](src/main/resources/templates/validation/v3) 
+
+<br>
+
+### Bean Validation - 스프링 적용
+
+[ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) V2에 있던 `@InitVinder`, `ItemValidator`빈 등록을 제거 했는제도 정상 작동
+- `validation` 라이브러리를 넣으면 자동으로 Bean Validator를 인지, 스프링에 통합함
+- `LocalValidatorFactoryBean` 글로벌 Validator로 등록
+- `Item`객체에 있는 `@NotNull` 어노테이션을 보고 검증을 수행
+- 그냥 검증되는것이 아닌 컨트롤러에 있는 `@Validated`가 있어야 함
