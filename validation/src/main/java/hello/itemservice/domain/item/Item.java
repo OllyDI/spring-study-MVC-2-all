@@ -9,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Data
+//@SsrciptAssert(lang = "javascript", script = "_this.price * _this.quantity >= 10000", message = "...")
 public class Item {
     
     // 실무에서는 groups를 잘 사용하지 않음 -> 복잡도가 너무 증가됨

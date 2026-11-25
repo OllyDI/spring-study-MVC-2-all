@@ -263,3 +263,30 @@ line 251 ~ 264 [ValidationItemControllerV2](src/main/java/hello/itemservice/web/
 - `LocalValidatorFactoryBean` 글로벌 Validator로 등록
 - `Item`객체에 있는 `@NotNull` 어노테이션을 보고 검증을 수행
 - 그냥 검증되는것이 아닌 컨트롤러에 있는 `@Validated`가 있어야 함
+
+<br>
+
+>26.11.25
+
+### Bean Validation - 에러 코드
+
+Bean Validation이 기본으로 제공하는 오류 메시지 변경
+
+ex: `NotBlank` 오류 코드 기반  `MessageCodesResolver`를 통해 메시지 코드 생성
+- NotBlank.item.itemName
+- NotBlank.itemName
+- NotBlank.java.lang.String
+- NotBlank
+
+이 메시지 코드를 [errors.properties](src/main/resources/errors.properties) 에 등록하면 오류 메시지 변경 가능 - line 42 ~ 45
+
+<br>
+
+### Bean Validation - 오브젝트 오류(ObjectError)
+
+특정 필드(FieldError)가 아닌 오브젝트 오류(ObjectError)는 `@ScriptAssert()`를 사용하면 됨
+
+[Item](src/main/java/hello/itemservice/domain/item/Item.java) 객체에 `@SsrciptAssert(lang = "javascript", script = "_this.price * _this.quantity >= 10000", message = "...")` 추가
+
+-> 제약 조건이 너무 많고 불편함. line 50 ~ 55 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) 직접 작성을 더 권장 
+
