@@ -290,3 +290,94 @@ ex: `NotBlank` 오류 코드 기반  `MessageCodesResolver`를 통해 메시지 
 
 -> 제약 조건이 너무 많고 불편함. line 50 ~ 55 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) 직접 작성을 더 권장 
 
+<br>
+
+>26.11.27
+
+### Bean Validation - 수정에 적용
+
+line 103 ~ 120 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) 코드 추가
+
+[editForm.html](src/main/resources/templates/validation/v3/editForm.html) 에러 메시지에 대한 타임리프 추가
+
+<br>
+
+### Bean Validation - 한계
+
+ex: 데이터를 등록할 때와 수정할 때 요구사항이 다를 경우
+
+수정시 요구사항
+- 등록시에는 `quantity` 수량을 최대 9999까지 등록할 수 있지만, **수정시에는 수량 무제한**
+- 등록시에는 `id`에 값이 없어도 되지만 **수정시에는 id 값 필수**
+
+[Item](src/main/java/hello/itemservice/domain/item/Item.java) 수정시 요구사항 추가
+- line 16 `@NotNull` 추가 -> 상품 등록시 id가 없어 안되는 문제 발생
+- line 27 `@Max` 주석 처리 -> 상품 등록시 9999개가 넘어도 등록이 되는 문제 발생
+
+<br>
+
+### Bean Validation - groups
+
+동일한 모델 객체를 등록, 수정할 때 각가 다르게 검증하는 방법
+1. BeanValidation의 groups 기능 사용
+2. Item을 직접 사용하지 않고 , ItemSaveForm, ItemUpdateForm 같은 폼 전송을 위한 별도의 모델 객체 생성
+
+groups 적용을 위한 [SaveCheck](src/main/java/hello/itemservice/domain/item/SaveCheck.java), [UpdateCheck](src/main/java/hello/itemservice/domain/item/UpdateCheck.java) 인터페이스 생성
+
+[Item](src/main/java/hello/itemservice/domain/item/Item.java) 각 어노테이션에 `groups = 인터페이스.class` 추가
+
+line 71 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) `@Validated(SaveCheck.class)` groups 적용
+
+line 123 [ValidationItemControllerV3](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV3.java) `@Validated(UpdateCheck.class)` groups 적용
+
+groups 기능 `@Valid`로는 불가능
+
+문제점
+1. groups로 인해 복잡도가 증가
+2. 실무에서는 등록 객체와 수정 객체를 분리해서 사용 -> groups 기능을 잘 사용하지 않음
+
+<br>
+
+### Form 전송 객체 분리 - 소개
+
+[ValidationItemControllerV4](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV4.java), [HTML v4](src/main/resources/templates/validation/v4) 생성
+
+groups를 잘 사용하지 않는 이유는 등록 객체와 수정 객체의 데이터가 딱 맞지 않음 -> 각각 다른 객체 사용
+
+<br>
+
+### Form 전송 객체 분리 - 개발
+
+[Item](src/main/java/hello/itemservice/domain/item/Item.java) 기존 Bean Validation 어노테이션은 모두 주석처리
+
+[ItemSaveForm](src/main/java/hello/itemservice/web/validation/form/ItemSaveForm.java) 객체 등록 폼 생성 -> 기존 Item 객체에 넣었던 등록 검증 어노테이션 추가
+
+[ItemUpdateForm](src/main/java/hello/itemservice/web/validation/form/ItemUpdateForm.java) 객체 수정 폼 생성 -> 기존 Item 객체에 넣었던 수정 검증 어노테이션 추가
+
+[ValidationItemControllerV4](src/main/java/hello/itemservice/web/validation/ValidationItemControllerV4.java) 컨트롤러 수정
+- line 49 `@ModelAttrbute` 이름을 반드시 `item`으로 넣어야 함 -> 아니면 `itemSaveForm`으로 들어감
+- line 49 Item 대신 ItemSaveForm 사용
+- line 66 ~ 69 form을 넘기는게 아니기 때문에 form 데이터를 Item 객체를 생성해서 넣고 넘겨줌
+
+line 85 ~ 108아이템 수정
+- line 86 상품 등록과 동일하게 `@ModelAttribute("item")` 그리고 Item 대신 ItemUpdateForm 사용
+- line 101 ~ 104 상품 등록과 동일하게 form 데이터를 Item 객체에 넣고 넘김
+
+<br>
+
+### Bean Validation - HTTP 메시지 컨버터
+
+`@Valid`, `@Validation`는 `HttpMessageConverter(@RequestBody)`에도 적용 가능
+
+[ValidationItemApiController](src/main/java/hello/itemservice/web/validation/ValidationItemApiController.java) 코드 추가
+- JSON 데이터 타입 에러 발생시 컨트롤러 자체가 호출 안됨 
+- JSON 데이터가 객체 형태로 바껴야 검증을 수행하는데 그 전에 오류 발생
+
+API는 3가지 경우로 나뉨
+- 성공 요청: 성공
+- 실패 요청: 앞서 설명한 JSON을 객체로 생성하는 것 자체 실패 -> 컨트롤러로 호출 안된
+- 검증 오류 요청: JSON을 객체 생성은 성공, 검증에서 실패
+
+`@ModelAttribute`와 `@RequestBody` 차이점
+- HTTP 요청 파라미터 `@ModelAttribute`: 필드 단위 적용, 특정 필드 타입 오류가 발생해도 나머지 필드는 정상 처리
+- `@HttpMessageConverter`: 전체 객체 단위 적용 -> 메시지 컨버터 작동이 성공 후 Item 객체를 만들어야 검증 수행 가능

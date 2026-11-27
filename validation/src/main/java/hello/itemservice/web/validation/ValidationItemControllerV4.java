@@ -107,4 +107,3 @@ public class ValidationItemControllerV4 {
         return "redirect:/validation/v4/items/{itemId}";
     }
 }
-
